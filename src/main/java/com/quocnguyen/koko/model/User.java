@@ -1,0 +1,27 @@
+package com.quocnguyen.koko.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.Date;
+
+@Data
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
+@EqualsAndHashCode
+@Entity
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String username;
+    private String email;
+    private String password;
+    private String name;
+    private int status;
+    private int gender;
+    private Date birthdate;
+    private Date createdAt;
+}
