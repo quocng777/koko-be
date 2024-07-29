@@ -5,12 +5,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -18,12 +21,15 @@ import java.util.Map;
  */
 
 @Slf4j
+@Component
 public class JwtTokenUtils {
     private static final String CLAIM_KEY_USERNAME = "sub";
-    private static final String CLAIM_KEY_CREATED = "iat";
+
+    @Value("${koko.jwt.secret}")
     private String secret;
+
+    @Value("${koko.jwt.expiration}")
     private long expiration;
-    private String tokenHead;
 
     /**
      * create new JWT token
@@ -81,6 +87,20 @@ public class JwtTokenUtils {
     public boolean isTokenExpired(String token) {
         Date expiredDate = getExpiredDateFromToken(token);
         return expiredDate.before(new Date(System.currentTimeMillis()));
+    }
+
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
+
+        return generateToken(claims);
+    }
+
+    public String generateTokeFromUsername(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(CLAIM_KEY_USERNAME, username);
+
+        return generateToken(claims);
     }
 
     private Key getSigningKey() {

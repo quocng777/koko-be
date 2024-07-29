@@ -12,20 +12,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final AuthService authService;
-    private final VerificationCodeService vcService;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/signup")
-    public ResponseEntity<AppResponse<UserDTO>> signup(@Valid @RequestBody SignUpRequest request) {
+    public ResponseEntity<AppResponse<Map<String, String>>> signup(@Valid @RequestBody SignUpRequest request) {
 
-        UserDTO savedUser = authService.signup(request);
-        vcService.createVerifyEmailCodeAndSendEmail(savedUser);
+        Map<String, String> tokens = authService.signup(request);
 
-        return new ResponseEntity<>(AppResponse.created(savedUser, "User created successfully"), HttpStatus.CREATED);
+        return new ResponseEntity<>(AppResponse.created(tokens, "User created successfully"), HttpStatus.CREATED);
     }
 }

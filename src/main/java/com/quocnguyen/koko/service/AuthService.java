@@ -3,6 +3,8 @@ package com.quocnguyen.koko.service;
 import com.quocnguyen.koko.dto.SignUpRequest;
 import com.quocnguyen.koko.dto.UserDTO;
 
+import java.util.Map;
+
 public interface AuthService {
-    UserDTO signup(SignUpRequest request);
+    Map<String, String> signup(SignUpRequest request);
 }

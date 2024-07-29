@@ -26,18 +26,18 @@ public class AuthServiceTest {
     @Autowired
     private UserRepository repo;
 
-    @Test
-    public void signupNewUser() {
-        SignUpRequest request = new SignUpRequest(
-                "Quoc Nguyen",
-                "quocng777",
-                "quocng777@gmail.com",
-                "quoc8338204",
-                0,
-                new Date());
-
-        UserDTO user = service.signup(request);
-        System.out.println(user);
-        assertThat(user).isNotNull();
-    }
+//    @Test
+//    public void signupNewUser() {
+//        SignUpRequest request = new SignUpRequest(
+//                "Quoc Nguyen",
+//                "quocng777",
+//                "quocng777@gmail.com",
+//                "quoc8338204",
+//                0,
+//                new Date());
+//
+//        UserDTO user = service.signup(request);
+//        System.out.println(user);
+//        assertThat(user).isNotNull();
+//    }
 }

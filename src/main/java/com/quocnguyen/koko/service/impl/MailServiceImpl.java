@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MailServiceImpl implements MailService {
 
-    @Value("{koko.email.from}")
+    @Value("${koko.email.from}")
     private String DEFAULT_MAIL_FROM;
 
     private final JavaMailSender mailSender;

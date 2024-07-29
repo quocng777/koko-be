@@ -12,7 +12,7 @@ public class UserDTO {
     private String username;
     private String email;
     private String name;
-    private int status;
+    private boolean enabled;
     private int gender;
     private Date birthdate;
     private Date createdAt;
