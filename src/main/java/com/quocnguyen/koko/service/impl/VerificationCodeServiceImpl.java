@@ -46,7 +46,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < TOKEN_LENGTH; i++) {
-            sb.append(TOKEN_CHARACTER_DOMAIN.charAt(random.nextInt(TOKEN_LENGTH)));
+            sb.append(TOKEN_CHARACTER_DOMAIN.charAt(random.nextInt(TOKEN_CHARACTER_DOMAIN.length())));
         }
 
         return sb.toString();
