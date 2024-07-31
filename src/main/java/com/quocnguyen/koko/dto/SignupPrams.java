@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Data
 @AllArgsConstructor
-public class SignUpRequest {
+public class SignupPrams {
     @NotBlank(message = "User's name is required")
     private String name;
 

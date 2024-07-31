@@ -1,6 +1,7 @@
 package com.quocnguyen.koko.service.impl;
 
-import com.quocnguyen.koko.dto.SignUpRequest;
+import com.quocnguyen.koko.dto.LoginParams;
+import com.quocnguyen.koko.dto.SignupPrams;
 import com.quocnguyen.koko.dto.UserDTO;
 import com.quocnguyen.koko.exception.ApiException;
 import com.quocnguyen.koko.exception.ErrorCode;
@@ -14,7 +15,11 @@ import com.quocnguyen.koko.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenUtils jwtUtils;
     private final RefreshTokenRepository refreshTokenRepo;
     private final VerificationCodeService vcService;
+    private final AuthenticationManager authManager;
 
     /**
      * This method helps to create new user in the system
@@ -43,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
      * @return a user dto object if the process is success
      */
     @Override
-    public Map<String, String> signup(SignUpRequest request) {
+    public Map<String, String> signup(SignupPrams request) {
 
         if(!checkValidEmail(request.getEmail())) {
             throw new ApiException(ErrorCode.EXISTED_USERNAME, String.format("Email %s is used by another user", request.getEmail()));
@@ -60,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
         // set new hashed password to the user
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreatedAt(new Date());
-        user.setEnabled(false);
+        user.setEnabled(true);
 
         userRepo.save(user);
 
@@ -107,5 +113,30 @@ public class AuthServiceImpl implements AuthService {
 
 
         return tokens;
+    }
+
+    /**
+     * login user by using name and password
+     *
+     * @param request
+     * @return
+     */
+
+    @Override
+    public Map<String, String> login(LoginParams request) {
+
+        var authToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
+        Authentication auth =  authManager.authenticate(authToken);
+        var cxt = SecurityContextHolder.createEmptyContext();
+        cxt.setAuthentication(auth);
+
+        User user = userRepo.findByUsername(request.getUsername()).orElseThrow(() -> new UsernameNotFoundException("user name not found"));
+
+        // delete previous token if it exists
+        refreshTokenRepo.deleteByUserId(user.getId());
+
+        var tokenMap = generateTokens(user);
+
+        return tokenMap;
     }
 }

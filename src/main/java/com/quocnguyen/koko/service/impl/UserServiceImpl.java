@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepo;
     @Override
-    public UserDetails loadByUserName(String username) {
+    public UserDetails loadByUsername(String username) {
         return userRepo.findByUsername(username)
                 .map(AppUserDetails::new)
                 .orElse(null);

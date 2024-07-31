@@ -25,4 +25,5 @@ public class User {
     private int gender;
     private Date birthdate;
     private Date createdAt;
+    private boolean verified;
 }
