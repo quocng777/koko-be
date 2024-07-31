@@ -2,6 +2,7 @@ package com.quocnguyen.koko.controller;
 
 
 import com.quocnguyen.koko.dto.AppResponse;
+import com.quocnguyen.koko.dto.ErrorResponse;
 import com.quocnguyen.koko.dto.LoginParams;
 import com.quocnguyen.koko.dto.SignupPrams;
 import com.quocnguyen.koko.service.AuthService;
@@ -22,7 +23,7 @@ public class AuthController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/signup")
-    public ResponseEntity<AppResponse<Map<String, String>>> signup(@Validated @RequestBody SignupPrams request) {
+    public ResponseEntity<?> signup(@Validated @RequestBody SignupPrams request) {
 
         Map<String, String> tokens = authService.signup(request);
 
@@ -30,10 +31,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AppResponse<Map<String, String>>> login(@Validated @RequestBody LoginParams loginParams) {
-
-        var tokens = authService.login(loginParams);
-
-        return ResponseEntity.ok(AppResponse.success(tokens));
+    public ResponseEntity<?> login(@Validated @RequestBody LoginParams loginParams) {
+        try {
+            var tokens = authService.login(loginParams);
+            return ResponseEntity.ok(AppResponse.success(tokens));
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN, "Access denied"), HttpStatus.FORBIDDEN);
+        }
     }
 }

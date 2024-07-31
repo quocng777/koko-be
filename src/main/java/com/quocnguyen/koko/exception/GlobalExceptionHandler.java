@@ -7,14 +7,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import javax.naming.AuthenticationException;
+
 @RestControllerAdvice
-public class ControllerExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handeApiException(ApiException ex, WebRequest request) {
         ErrorResponse msg = new ErrorResponse(ex.getErrCode(), ex.getMessage());
 
         return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthException(AuthenticationException ex, WebRequest request) {
+        ErrorResponse msg = new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
+
+        return new ResponseEntity<>(msg, HttpStatus.FORBIDDEN);
     }
 
 }
