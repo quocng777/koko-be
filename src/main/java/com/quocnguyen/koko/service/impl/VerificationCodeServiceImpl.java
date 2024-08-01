@@ -69,8 +69,8 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
                 .token(createRandomToken())
                 .user(savedUser)
                 .codeType(codeType)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plus(EXPIRE_TIME, ChronoUnit.MILLIS))
+                .createdAt(new Date())
+                .expiresAt(new Date(System.currentTimeMillis() + EXPIRE_TIME))
                 .numTrial(NUM_TRIAL)
                 .build();
 
@@ -79,6 +79,12 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
 
     @Override
     public VerificationCode createVerifyEmailCodeAndSendEmail(UserDTO user) {
+
+        if(user.isVerified())
+            return null;
+
+        codeRepo.findByUserIdAAndCodeType(user.getId(), VerificationCode.CodeType.VERIFICATION_EMAIL).ifPresent(codeRepo::delete);
+
         VerificationCode code = createCode(user, VerificationCode.CodeType.VERIFICATION_EMAIL);
 
         codeRepo.save(code);
@@ -102,4 +108,5 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
                 "   <p>You have created an account on our system. Here is your confirmation code. Please don't share to anyone</p>" +
                 "   <p>" + code.getToken() +  "</p";
     }
+
 }

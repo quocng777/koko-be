@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * @author Quoc Nguyen on {7/28/2024}
@@ -25,8 +26,8 @@ public class VerificationCode {
     private Long id;
 
     private String token;
-    private LocalDateTime createdAt;
-    private LocalDateTime expiresAt;
+    private Date createdAt;
+    private Date expiresAt;
     @Enumerated(EnumType.STRING)
     private CodeType codeType;
 

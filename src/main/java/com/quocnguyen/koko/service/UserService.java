@@ -1,5 +1,6 @@
 package com.quocnguyen.koko.service;
 
+import com.quocnguyen.koko.dto.UserDTO;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -8,4 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 public interface UserService {
 
     UserDetails loadByUsername(String username);
+
+    UserDTO verifyAccount(String token);
+
+    UserDTO getAuthenticatedUser();
 }
