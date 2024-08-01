@@ -1,10 +1,7 @@
 package com.quocnguyen.koko.controller;
 
 
-import com.quocnguyen.koko.dto.AppResponse;
-import com.quocnguyen.koko.dto.ErrorResponse;
-import com.quocnguyen.koko.dto.LoginParams;
-import com.quocnguyen.koko.dto.SignupPrams;
+import com.quocnguyen.koko.dto.*;
 import com.quocnguyen.koko.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +35,16 @@ public class AuthController {
         } catch (Exception e) {
             return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN, "Access denied"), HttpStatus.FORBIDDEN);
         }
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@Validated @RequestBody RefreshTokenParams refreshTokenParams) {
+        var tokens = authService.refreshToken(refreshTokenParams);
+
+        if(tokens == null) {
+            return new ResponseEntity<>(new ErrorResponse(HttpStatus.FORBIDDEN, "Access denied"), HttpStatus.FORBIDDEN);
+        }
+
+        return ResponseEntity.ok(AppResponse.success(tokens));
     }
 }

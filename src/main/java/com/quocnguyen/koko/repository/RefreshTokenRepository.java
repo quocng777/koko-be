@@ -7,6 +7,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 /**
  * @author Quoc Nguyen on {7/29/2024}
  */
@@ -18,5 +20,9 @@ public interface RefreshTokenRepository extends CrudRepository<RefreshToken, Lon
     @Transactional
     @Query("DELETE FROM RefreshToken r WHERE r.user.id = ?1")
     void deleteByUserId(Long userId);
+
+    @Query("SELECT r FROM RefreshToken r WHERE r.user.username = ?1")
+    Optional<RefreshToken> findByUsername(String username);
+
 
 }

@@ -1,10 +1,12 @@
 package com.quocnguyen.koko.service.impl;
 
 import com.quocnguyen.koko.dto.LoginParams;
+import com.quocnguyen.koko.dto.RefreshTokenParams;
 import com.quocnguyen.koko.dto.SignupPrams;
 import com.quocnguyen.koko.dto.UserDTO;
 import com.quocnguyen.koko.exception.ApiException;
 import com.quocnguyen.koko.exception.ErrorCode;
+import com.quocnguyen.koko.exception.ResourceNotFoundException;
 import com.quocnguyen.koko.model.RefreshToken;
 import com.quocnguyen.koko.model.User;
 import com.quocnguyen.koko.repository.RefreshTokenRepository;
@@ -104,6 +106,9 @@ public class AuthServiceImpl implements AuthService {
                 .expireAt(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
                 .build();
 
+        // delete previous token if it exists
+        refreshTokenRepo.deleteByUserId(user.getId());
+
         refreshTokenRepo.save(refreshToken);
 
         Map<String, String> tokens = new HashMap<>();
@@ -132,11 +137,24 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userRepo.findByUsername(request.getUsername()).orElseThrow(() -> new UsernameNotFoundException("user name not found"));
 
-        // delete previous token if it exists
-        refreshTokenRepo.deleteByUserId(user.getId());
-
         var tokenMap = generateTokens(user);
 
         return tokenMap;
+    }
+
+    @Override
+    public Map<String, String> refreshToken(RefreshTokenParams refreshParams) {
+        RefreshToken token = refreshTokenRepo
+                .findByUsername(refreshParams.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found"));
+
+        if(!token.getToken().equals(refreshParams.getToken())) {
+            return null;
+        }else if(token.isExpired()) {
+            refreshTokenRepo.delete(token);
+            return null;
+        }
+
+        return generateTokens(token.getUser());
     }
 }

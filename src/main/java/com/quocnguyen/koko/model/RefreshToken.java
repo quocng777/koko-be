@@ -35,7 +35,7 @@ public class RefreshToken {
     private User user;
     
     public boolean isExpired() {
-        return !expireAt.before(new Date(System.currentTimeMillis()));
+        return !expireAt.after(new Date(System.currentTimeMillis()));
     }
 
 }
