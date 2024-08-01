@@ -19,13 +19,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthException(AuthenticationException ex, WebRequest request) {
-        ErrorResponse msg = new ErrorResponse(HttpStatus.FORBIDDEN, ex.getMessage());
-
-        return new ResponseEntity<>(msg, HttpStatus.FORBIDDEN);
-    }
-
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         ErrorResponse msg = new ErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
