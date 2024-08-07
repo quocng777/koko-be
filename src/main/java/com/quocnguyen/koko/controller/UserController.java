@@ -54,5 +54,14 @@ public class UserController {
         return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getAuthentication() {
+        UserDTO user = userService.getAuthenticatedUser();
+
+        return new ResponseEntity<>(
+                AppResponse.success(user), HttpStatus.OK
+        );
+    }
+
 
 }
