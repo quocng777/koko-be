@@ -2,6 +2,7 @@ package com.quocnguyen.koko.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
@@ -19,6 +20,7 @@ public class Attachment {
 
     @ManyToOne
     @JoinColumn(name = "message_id", referencedColumnName = "id")
+    @EqualsAndHashCode.Exclude
     private Message message;
 
     private String url;

@@ -8,12 +8,14 @@ import com.quocnguyen.koko.model.Conservation;
 import com.quocnguyen.koko.model.Participant;
 import com.quocnguyen.koko.model.User;
 import com.quocnguyen.koko.repository.ConservationRepository;
+import com.quocnguyen.koko.repository.ParticipantRepository;
 import com.quocnguyen.koko.repository.UserRepository;
 import com.quocnguyen.koko.service.ConservationService;
 import com.quocnguyen.koko.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
 import java.util.Date;
@@ -32,8 +34,10 @@ public class ConservationServiceImpl implements ConservationService {
     private final ConservationRepository conservationRepository;
     private final UserService userService;
     private final UserRepository userRepository;
+    private final ParticipantRepository participantRepository;
 
     @Override
+    @Transactional
     public ConservationDTO create(ConservationRequestParams params) {
 
         log.info("Request" + params);
@@ -59,6 +63,7 @@ public class ConservationServiceImpl implements ConservationService {
         try {
             var users = userRepository.findUsersById(params.getParticipants());
 
+            Conservation savedConservation = conservationRepository.save(conservation);
             // covert users to participant entities
             Set<Participant> participants = users
                     .stream()
@@ -67,16 +72,18 @@ public class ConservationServiceImpl implements ConservationService {
                                 .builder()
                                 .createAt(new Date())
                                 .user(elm)
+                                .conservation(conservation)
                                 .build();
                         if(params.getConservationType() == Conservation.ConservationType.GROUP
                                 && elm.getId().equals(user.getId())) {
                             participant.setRole(Participant.Role.ADMIN);
                         }
+
+                        participant = participantRepository.save(participant);
                         return participant;
                     }).collect(Collectors.toSet());
 
             conservation.setParticipants(participants);
-            Conservation savedConservation = conservationRepository.save(conservation);
 
             return ConservationDTO.convert(savedConservation);
 

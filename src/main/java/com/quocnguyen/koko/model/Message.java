@@ -1,7 +1,10 @@
 package com.quocnguyen.koko.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.Set;
@@ -11,6 +14,9 @@ import java.util.Set;
  */
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Message {
     @Id

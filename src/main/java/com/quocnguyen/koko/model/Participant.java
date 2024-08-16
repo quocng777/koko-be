@@ -1,10 +1,7 @@
 package com.quocnguyen.koko.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
@@ -28,6 +25,7 @@ public class Participant {
 
     @ManyToOne
     @JoinColumn(name = "conservation_id", referencedColumnName = "id")
+    @EqualsAndHashCode.Exclude
     private Conservation conservation;
 
     @Enumerated(EnumType.STRING)

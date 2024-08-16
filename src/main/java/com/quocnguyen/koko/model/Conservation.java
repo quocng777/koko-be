@@ -1,10 +1,7 @@
 package com.quocnguyen.koko.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -37,6 +34,7 @@ public class Conservation {
     private Date createdAt;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "conservation")
+    @EqualsAndHashCode.Exclude
     private Set<Participant> participants;
 
     public enum ConservationType {
