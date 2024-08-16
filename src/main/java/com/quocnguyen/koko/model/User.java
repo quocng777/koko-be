@@ -26,4 +26,8 @@ public class User {
     private Date birthdate;
     private Date createdAt;
     private boolean verified;
+
+    public User(Long id) {
+        this.id = id;
+    }
 }
