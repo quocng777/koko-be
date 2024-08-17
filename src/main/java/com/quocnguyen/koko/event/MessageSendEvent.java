@@ -16,7 +16,7 @@ public class MessageSendEvent extends ApplicationEvent {
     private Conservation conservation;
     public MessageSendEvent(Object source, MessageDTO message, Conservation conservation) {
         super(source);
-
         this.message = message;
+        this.conservation = conservation;
     }
 }

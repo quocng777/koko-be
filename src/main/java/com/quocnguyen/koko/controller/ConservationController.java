@@ -7,10 +7,7 @@ import com.quocnguyen.koko.service.ConservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.function.EntityResponse;
 
 /**
@@ -23,10 +20,16 @@ import org.springframework.web.servlet.function.EntityResponse;
 public class ConservationController {
     private final ConservationService conservationService;
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<?> createConservation(@RequestBody  ConservationRequestParams params) {
         ConservationDTO conservation = conservationService.create(params);
 
         return new ResponseEntity<>(AppResponse.created(conservation), HttpStatus.CREATED);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getConservations() {
+        return ResponseEntity.ok(
+                AppResponse.success(conservationService.getConservations()));
     }
 }

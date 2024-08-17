@@ -30,7 +30,7 @@ public class ConservationDTO {
         Set<ParticipantDTO> participants = conservation
                 .getParticipants()
                 .stream()
-                .map(elm -> ParticipantDTO.convert(elm))
+                .map(ParticipantDTO::convert)
                 .collect(Collectors.toSet());
 
         ConservationDTO dto = builder()

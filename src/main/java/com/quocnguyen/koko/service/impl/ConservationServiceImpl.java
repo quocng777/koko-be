@@ -18,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -91,5 +89,16 @@ public class ConservationServiceImpl implements ConservationService {
             log.error(exc.getMessage());
             throw new ResourceNotFoundException("Have an error when inserting participant into group");
         }
+    }
+
+    @Override
+    public Collection<ConservationDTO> getConservations() {
+        UserDTO user = userService.getAuthenticatedUser();
+
+        var conservations = conservationRepository.findAllByUserId(user.getId());
+
+        return conservations.stream()
+                .map(ConservationDTO::convert)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }

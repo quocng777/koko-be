@@ -2,6 +2,7 @@ package com.quocnguyen.koko.service.impl;
 
 import com.quocnguyen.koko.dto.MessageDTO;
 import com.quocnguyen.koko.dto.UserDTO;
+import com.quocnguyen.koko.event.MessageSendEvent;
 import com.quocnguyen.koko.exception.ResourceNotFoundException;
 import com.quocnguyen.koko.model.Attachment;
 import com.quocnguyen.koko.model.Conservation;
@@ -13,6 +14,7 @@ import com.quocnguyen.koko.repository.MessageRepository;
 import com.quocnguyen.koko.service.MessageService;
 import com.quocnguyen.koko.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ public class MessageServiceImpl implements MessageService {
     private final ConservationRepository conservationRepository;
     private final AttachmentRepository attachmentRepository;
     private final MessageRepository messageRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     @Override
@@ -67,6 +70,21 @@ public class MessageServiceImpl implements MessageService {
 
         Message savedMessage = messageRepository.save(message);
 
+        var returnMessage = MessageDTO.convert(message);
+
+        eventPublisher.publishEvent(new MessageSendEvent(this, returnMessage, conservation));
+
+        return returnMessage;
+    }
+
+    @Override
+    public MessageDTO getLatestMessage(Long conservation) {
+        var user = userService.getAuthenticatedUser();
+
+        Message message = messageRepository.findLatestMessage(user.getId(), conservation)
+                .orElse(null);
+        if(message == null)
+            return null;
         return MessageDTO.convert(message);
     }
 }

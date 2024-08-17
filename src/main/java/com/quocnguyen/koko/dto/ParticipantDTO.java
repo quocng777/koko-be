@@ -26,6 +26,7 @@ public class ParticipantDTO {
         ParticipantDTO dto = ParticipantDTO
                 .builder()
                 .userId(user.getId())
+                .username(user.getUsername())
                 .name(user.getName())
                 .createdAt(participant.getCreateAt())
                 .build();

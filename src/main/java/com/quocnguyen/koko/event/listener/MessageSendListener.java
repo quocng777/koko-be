@@ -3,6 +3,7 @@ package com.quocnguyen.koko.event.listener;
 import com.quocnguyen.koko.event.MessageSendEvent;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.converter.SimpleMessageConverter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class MessageSendListener {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
@@ -21,6 +23,7 @@ public class MessageSendListener {
     public void sendMessage(MessageSendEvent event) {
         var msg = event.getMessage();
         var conservation = event.getConservation();
+        log.info("SEND MESSAGE EVENT: " + msg);
 
         conservation
                 .getParticipants()

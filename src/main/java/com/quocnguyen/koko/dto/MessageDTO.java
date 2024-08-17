@@ -29,7 +29,6 @@ public class MessageDTO {
     @NotNull
     private Long conservation;
 
-    @NotNull
     private Long sender;
 
     private String message;
@@ -46,6 +45,7 @@ public class MessageDTO {
         MessageDTO messageDTO = MessageDTO
                 .builder()
                 .id(message.getId())
+                .conservation(message.getConservation().getId())
                 .message(message.getMessage())
                 .type(message.getType())
                 .attachments(message.getAttachments() == null
@@ -56,6 +56,7 @@ public class MessageDTO {
                                 .collect(Collectors.toSet())
                         )
                 .sender(message.getSender().getId())
+                .createdAt(message.getCreatedAt())
                 .build();
 
         return messageDTO;

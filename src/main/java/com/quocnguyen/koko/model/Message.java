@@ -23,11 +23,11 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "conservation_id", referencedColumnName = "id")
     private Conservation conservation;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id", name = "sender_id")
     private User sender;
 

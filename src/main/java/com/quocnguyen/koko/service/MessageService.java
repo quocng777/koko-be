@@ -8,4 +8,6 @@ import com.quocnguyen.koko.dto.MessageDTO;
 public interface MessageService {
 
     MessageDTO create(MessageDTO receivedMsg);
+
+    MessageDTO getLatestMessage(Long conservation);
 }
