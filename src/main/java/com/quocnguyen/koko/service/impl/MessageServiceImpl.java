@@ -1,6 +1,8 @@
 package com.quocnguyen.koko.service.impl;
 
+import com.quocnguyen.koko.dto.AppPaging;
 import com.quocnguyen.koko.dto.MessageDTO;
+import com.quocnguyen.koko.dto.MessageQueryParams;
 import com.quocnguyen.koko.dto.UserDTO;
 import com.quocnguyen.koko.event.MessageSendEvent;
 import com.quocnguyen.koko.exception.ResourceNotFoundException;
@@ -16,10 +18,13 @@ import com.quocnguyen.koko.service.MessageService;
 import com.quocnguyen.koko.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -93,5 +98,25 @@ public class MessageServiceImpl implements MessageService {
             return null;
 
         return MessageDTO.convert(message);
+    }
+
+    @Override
+    public AppPaging<MessageDTO> getMessages(MessageQueryParams params, Integer pageSize, Integer pageNum) {
+        var user = userService.getAuthenticatedUser();
+        if(params.getConservationId() != null) {
+            participantRepository.findByUserIdAndConservationId(user.getId(), params.getConservationId())
+                    .orElseThrow(() -> new ResourceNotFoundException(String.format("Conservation %d not found", params.getConservationId())));
+        }
+
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+
+        Page<Message> result = messageRepository.findAllMessages(params, pageable);
+
+        var list = result.getContent().stream().map(MessageDTO::convert).collect(Collectors.toCollection(ArrayList::new));
+
+        AppPaging<MessageDTO> page =  AppPaging.convertExcludeContent(result);
+        page.setList(list);
+
+        return page;
     }
 }

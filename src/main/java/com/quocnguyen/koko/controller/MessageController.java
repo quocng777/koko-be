@@ -2,6 +2,7 @@ package com.quocnguyen.koko.controller;
 
 import com.quocnguyen.koko.dto.AppResponse;
 import com.quocnguyen.koko.dto.MessageDTO;
+import com.quocnguyen.koko.dto.MessageQueryParams;
 import com.quocnguyen.koko.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,5 +30,16 @@ public class MessageController {
         return ResponseEntity.ok(
                 AppResponse.success(messageService.getLatestMessage(conservation))
         );
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getMessages(@ModelAttribute MessageQueryParams messageQueryParams,
+                                         @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                         @RequestParam(name = "pageNum", defaultValue = "0") Integer pageNum) {
+
+        return ResponseEntity
+                .ok(AppResponse
+                        .success(messageService
+                                .getMessages(messageQueryParams, pageSize, pageNum)));
     }
 }
