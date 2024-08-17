@@ -11,6 +11,7 @@ import com.quocnguyen.koko.model.User;
 import com.quocnguyen.koko.repository.AttachmentRepository;
 import com.quocnguyen.koko.repository.ConservationRepository;
 import com.quocnguyen.koko.repository.MessageRepository;
+import com.quocnguyen.koko.repository.ParticipantRepository;
 import com.quocnguyen.koko.service.MessageService;
 import com.quocnguyen.koko.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class MessageServiceImpl implements MessageService {
     private final AttachmentRepository attachmentRepository;
     private final MessageRepository messageRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ParticipantRepository participantRepository;
 
 
     @Override
@@ -81,10 +83,15 @@ public class MessageServiceImpl implements MessageService {
     public MessageDTO getLatestMessage(Long conservation) {
         var user = userService.getAuthenticatedUser();
 
-        Message message = messageRepository.findLatestMessage(user.getId(), conservation)
+        participantRepository.findByUserIdAndConservationId(user.getId(), conservation)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Conservation %d not found", conservation)));
+
+        Message message = messageRepository.findLatestMessage(conservation)
                 .orElse(null);
+
         if(message == null)
             return null;
+
         return MessageDTO.convert(message);
     }
 }

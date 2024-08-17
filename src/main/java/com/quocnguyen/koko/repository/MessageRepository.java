@@ -15,9 +15,9 @@ import java.util.Optional;
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
     @Query("SELECT m FROM Message m " +
-            "WHERE m.conservation.id = ?2 AND m.sender.id = ?1 " +
+            "WHERE m.conservation.id = ?1 " +
             "ORDER BY m.createdAt DESC " +
             "LIMIT 1")
-    Optional<Message> findLatestMessage(Long userId, Long conservationId);
+    Optional<Message> findLatestMessage(Long conservationId);
 
 }
