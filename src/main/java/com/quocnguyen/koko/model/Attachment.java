@@ -22,6 +22,7 @@ public class Attachment {
     @JoinColumn(name = "message_id", referencedColumnName = "id")
     @EqualsAndHashCode.Exclude
     private Message message;
+    private String fileName;
 
     private String url;
 

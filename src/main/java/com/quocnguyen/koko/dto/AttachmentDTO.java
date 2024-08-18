@@ -15,5 +15,6 @@ import java.util.Date;
 public class AttachmentDTO {
     private Long id;
     private String url;
+    private String fileName;
     private Date createdAt;
 }

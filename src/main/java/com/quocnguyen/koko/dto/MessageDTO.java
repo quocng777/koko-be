@@ -52,7 +52,7 @@ public class MessageDTO {
                                 ? null
                                 : message.getAttachments()
                                 .stream()
-                                .map(atc -> new AttachmentDTO(atc.getId(), atc.getUrl(), atc.getCreatedAt()))
+                                .map(atc -> new AttachmentDTO(atc.getId(), atc.getUrl(), atc.getFileName(), atc.getCreatedAt()))
                                 .collect(Collectors.toSet())
                         )
                 .sender(message.getSender().getId())
