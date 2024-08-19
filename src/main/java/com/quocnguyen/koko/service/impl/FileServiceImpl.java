@@ -3,6 +3,7 @@ package com.quocnguyen.koko.service.impl;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.quocnguyen.koko.dto.AttachmentPreSingedUrlDTO;
 import com.quocnguyen.koko.dto.UserDTO;
 import com.quocnguyen.koko.service.FileService;
 import com.quocnguyen.koko.service.UserService;
@@ -32,7 +33,7 @@ public class FileServiceImpl implements FileService {
     private final AmazonS3 amazonS3;
 
     @Override
-    public String generatePreSignedUrl() {
+    public AttachmentPreSingedUrlDTO generatePreSignedUrl() {
         UserDTO user = userService.getAuthenticatedUser();
 
         String uploadFileName = user.getId().toString() + "/" + UUID.randomUUID().toString();
@@ -45,6 +46,11 @@ public class FileServiceImpl implements FileService {
 
         URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
 
-        return url.toString();
+        return AttachmentPreSingedUrlDTO
+                .builder()
+                .fileUploadedUrl(url.getProtocol() + "://" + url.getHost() + "/" + uploadFileName)
+                .url(url.toString())
+                .build();
+
     }
 }

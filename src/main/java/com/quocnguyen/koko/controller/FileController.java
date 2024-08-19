@@ -1,5 +1,6 @@
 package com.quocnguyen.koko.controller;
 
+import com.quocnguyen.koko.dto.AppResponse;
 import com.quocnguyen.koko.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,6 @@ public class FileController {
     @GetMapping("/preSignedUrl")
     public ResponseEntity<?> getPreSignedUrl() {
 
-        return ResponseEntity.ok(fileService.generatePreSignedUrl());
-    };
-
+        return ResponseEntity.ok(AppResponse.success(fileService.generatePreSignedUrl()));
+    }
 }

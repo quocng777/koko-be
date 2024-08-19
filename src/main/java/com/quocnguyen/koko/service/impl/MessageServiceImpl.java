@@ -63,20 +63,27 @@ public class MessageServiceImpl implements MessageService {
 
         if(message.getType() == Message.MessageType.TEXT) {
             message.setMessage(receivedMsg.getMessage());
-        } else {
-            Set<Attachment> attachments = receivedMsg
-                    .getAttachments()
-                    .stream()
-                    .map((atc) -> {
-                        return attachmentRepository
-                                .findById(atc.getId())
-                                .orElseThrow(() -> new ResourceNotFoundException(String.format("Attachment %s not found", atc.getId())));
-                    })
-                    .collect(Collectors.toSet());
         }
-
         Message savedMessage = messageRepository.save(message);
 
+        Set<Attachment> attachments = receivedMsg
+                .getAttachments()
+                .stream()
+                .map((atc) -> {
+                    Attachment attachment = Attachment
+                            .builder()
+                            .fileName(atc.getFileName())
+                            .url(atc.getUrl())
+                            .message(savedMessage)
+                            .createdAt(new Date())
+                            .build();
+                    var savedAttachment = attachmentRepository.save(attachment);
+
+                    return savedAttachment;
+                })
+                .collect(Collectors.toSet());
+
+        savedMessage.setAttachments(attachments);
         var returnMessage = MessageDTO.convert(message);
 
         eventPublisher.publishEvent(new MessageSendEvent(this, returnMessage, conservation));
