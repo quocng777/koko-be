@@ -29,9 +29,7 @@ public class MessageSendListener {
                 .getParticipants()
                 .forEach((mem) -> {
                     Long memId = mem.getUser().getId();
-                    if(!memId.equals(msg.getSender())) {
-                        simpMessagingTemplate.convertAndSendToUser(memId.toString(), "/message", msg);
-                    }
+                    simpMessagingTemplate.convertAndSendToUser(memId.toString(), "/message", msg);
                 });
     }
 

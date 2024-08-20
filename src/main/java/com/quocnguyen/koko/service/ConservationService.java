@@ -12,4 +12,6 @@ public interface ConservationService {
     ConservationDTO create(ConservationRequestParams prams);
 
     Collection<ConservationDTO> getConservations();
+
+    ConservationDTO get(Long id);
 }

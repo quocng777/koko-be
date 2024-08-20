@@ -101,4 +101,15 @@ public class ConservationServiceImpl implements ConservationService {
                 .map(ConservationDTO::convert)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
+
+    @Override
+    public ConservationDTO get(Long id) {
+        // check is user requesting is have the permission to access the conservation
+        UserDTO user = userService.getAuthenticatedUser();
+
+        Conservation conservation = conservationRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Conservation with id %d is not found", id)));
+
+        return ConservationDTO.convert(conservation);
+    }
 }

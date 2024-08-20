@@ -32,4 +32,11 @@ public class ConservationController {
         return ResponseEntity.ok(
                 AppResponse.success(conservationService.getConservations()));
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getConservationById(@PathVariable(name = "id") Long id) {
+        return ResponseEntity.ok(
+                AppResponse.success(conservationService.get(id))
+        );
+    }
 }

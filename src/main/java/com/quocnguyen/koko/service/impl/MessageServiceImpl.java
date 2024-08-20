@@ -75,6 +75,7 @@ public class MessageServiceImpl implements MessageService {
                             .fileName(atc.getFileName())
                             .url(atc.getUrl())
                             .message(savedMessage)
+                            .fileType(atc.getFileType())
                             .createdAt(new Date())
                             .build();
                     var savedAttachment = attachmentRepository.save(attachment);

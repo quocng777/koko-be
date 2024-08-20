@@ -16,5 +16,6 @@ public class AttachmentDTO {
     private Long id;
     private String url;
     private String fileName;
+    private String fileType;
     private Date createdAt;
 }

@@ -19,14 +19,12 @@ public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "message_id", referencedColumnName = "id")
     @EqualsAndHashCode.Exclude
     private Message message;
     private String fileName;
-
     private String url;
-
+    private String fileType;
     private Date createdAt;
 }
