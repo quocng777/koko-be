@@ -24,7 +24,7 @@ public class Conservation {
 
     private String name;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "creator_id", referencedColumnName = "id")
     private User creator;
 

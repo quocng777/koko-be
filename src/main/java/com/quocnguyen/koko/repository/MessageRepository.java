@@ -28,6 +28,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query("SELECT m FROM Message m WHERE " +
             "(:#{#params.beforeMessage} IS NULL OR m.id < :#{#params.beforeMessage}) AND " +
             "(:#{#params.conservationId} = m.conservation.id) AND " +
-            "(:#{#params.keyword} IS NULL OR m.message LIKE %:#{#params.keyword}%)")
+            "(:#{#params.keyword} IS NULL OR m.message LIKE %:#{#params.keyword}%) " +
+            "ORDER BY m.createdAt DESC ")
     Page<Message> findAllMessages(@Param("params") MessageQueryParams params, Pageable pageable);
 }
