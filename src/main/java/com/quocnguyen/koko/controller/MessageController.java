@@ -3,10 +3,14 @@ package com.quocnguyen.koko.controller;
 import com.quocnguyen.koko.dto.AppResponse;
 import com.quocnguyen.koko.dto.MessageDTO;
 import com.quocnguyen.koko.dto.MessageQueryParams;
+import com.quocnguyen.koko.dto.MessageTyping;
 import com.quocnguyen.koko.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 /**
  * @author Quoc Nguyen on {2024-08-16}
@@ -41,5 +45,10 @@ public class MessageController {
                 .ok(AppResponse
                         .success(messageService
                                 .getMessages(messageQueryParams, pageSize, pageNum)));
+    }
+
+    @MessageMapping("/typing")
+    public void sendTyping(@RequestBody MessageTyping messageTyping, Principal principal) {
+        messageService.sendIsTyping(principal, messageTyping);
     }
 }

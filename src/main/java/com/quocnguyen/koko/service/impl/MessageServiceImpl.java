@@ -1,29 +1,26 @@
 package com.quocnguyen.koko.service.impl;
 
-import com.quocnguyen.koko.dto.AppPaging;
-import com.quocnguyen.koko.dto.MessageDTO;
-import com.quocnguyen.koko.dto.MessageQueryParams;
-import com.quocnguyen.koko.dto.UserDTO;
+import com.quocnguyen.koko.dto.*;
 import com.quocnguyen.koko.event.MessageSendEvent;
 import com.quocnguyen.koko.exception.ResourceNotFoundException;
 import com.quocnguyen.koko.model.Attachment;
 import com.quocnguyen.koko.model.Conservation;
 import com.quocnguyen.koko.model.Message;
 import com.quocnguyen.koko.model.User;
-import com.quocnguyen.koko.repository.AttachmentRepository;
-import com.quocnguyen.koko.repository.ConservationRepository;
-import com.quocnguyen.koko.repository.MessageRepository;
-import com.quocnguyen.koko.repository.ParticipantRepository;
+import com.quocnguyen.koko.repository.*;
 import com.quocnguyen.koko.service.MessageService;
 import com.quocnguyen.koko.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
@@ -35,6 +32,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MessageServiceImpl implements MessageService {
     private final UserService userService;
     private final ConservationRepository conservationRepository;
@@ -42,6 +40,8 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final ParticipantRepository participantRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final UserRepository userRepository;
 
 
     @Override
@@ -78,15 +78,15 @@ public class MessageServiceImpl implements MessageService {
                             .fileType(atc.getFileType())
                             .createdAt(new Date())
                             .build();
-                    var savedAttachment = attachmentRepository.save(attachment);
 
-                    return savedAttachment;
+                    return attachmentRepository.save(attachment);
                 })
                 .collect(Collectors.toSet());
 
         savedMessage.setAttachments(attachments);
         var returnMessage = MessageDTO.convert(message);
 
+        System.out.println("PUBLISH EVENT");
         eventPublisher.publishEvent(new MessageSendEvent(this, returnMessage, conservation));
 
         return returnMessage;
@@ -126,5 +126,27 @@ public class MessageServiceImpl implements MessageService {
         page.setList(list);
 
         return page;
+    }
+
+    @Override
+    public void sendIsTyping(Principal principal, MessageTyping messageTyping) {
+        String username = principal.getName();
+        if(username == null)
+            return;
+
+        User user = userRepository.findByUsername(username).orElse(null);
+
+        if(user == null)
+            return;
+
+        conservationRepository
+                .findByIdAndUserId(messageTyping.getConservation(), user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Conservation not found"));
+
+        messageTyping.setUser(user.getId());
+
+        // resend to users in the group
+        System.out.println("/typing/" + messageTyping.getConservation());
+        messagingTemplate.convertAndSend("/messages/typing/" + messageTyping.getConservation(), messageTyping);
     }
 }

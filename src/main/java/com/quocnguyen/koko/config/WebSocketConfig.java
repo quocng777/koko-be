@@ -11,7 +11,9 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -42,7 +44,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic", "/user");
+        registry.enableSimpleBroker("/messages", "/user");
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
     }
@@ -67,6 +69,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
                         if(authenticated) {
                             final var authToken = new UsernamePasswordAuthenticationToken(userDetails, null);
+
+                            // can't use this here, because of the thread which set Authentication is different from the thread we get Authentication to use, typically is Service layer
+                            // so when we want to get authenticated user from SecurityContextHolder it will be null
+//                            var context = SecurityContextHolder.createEmptyContext();
+//                            context.setAuthentication(authToken);
+//                            SecurityContextHolder.setContext(context);
 
                             accessor.setUser(authToken);
                         }
