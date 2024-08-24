@@ -40,6 +40,7 @@ public class MessageDTO {
     private Message.MessageType type;
 
     private Set<AttachmentDTO> attachments;
+    private Set<MessageSeenDTO> seenUsers;
 
     public static MessageDTO convert(Message message) {
         MessageDTO messageDTO = MessageDTO
@@ -55,6 +56,20 @@ public class MessageDTO {
                                 .map(atc -> new AttachmentDTO(atc.getId(), atc.getUrl(), atc.getFileName(), atc.getFileType(), atc.getCreatedAt()))
                                 .collect(Collectors.toSet())
                         )
+                .seenUsers(
+                        message.getSeenUser() == null
+                        ? null : message
+                                .getSeenUser()
+                                .stream()
+                                .map((seenMsg -> {
+                                    return MessageSeenDTO
+                                            .builder()
+                                            .user(seenMsg.getUser().getId())
+                                            .seenAt(seenMsg.getSeenAt())
+                                            .build();
+                                }))
+                                .collect(Collectors.toSet())
+                )
                 .sender(message.getSender().getId())
                 .createdAt(message.getCreatedAt())
                 .build();

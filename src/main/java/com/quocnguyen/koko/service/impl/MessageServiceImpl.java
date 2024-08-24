@@ -1,12 +1,10 @@
 package com.quocnguyen.koko.service.impl;
 
 import com.quocnguyen.koko.dto.*;
+import com.quocnguyen.koko.event.MessageSeenEvent;
 import com.quocnguyen.koko.event.MessageSendEvent;
 import com.quocnguyen.koko.exception.ResourceNotFoundException;
-import com.quocnguyen.koko.model.Attachment;
-import com.quocnguyen.koko.model.Conservation;
-import com.quocnguyen.koko.model.Message;
-import com.quocnguyen.koko.model.User;
+import com.quocnguyen.koko.model.*;
 import com.quocnguyen.koko.repository.*;
 import com.quocnguyen.koko.service.MessageService;
 import com.quocnguyen.koko.service.UserService;
@@ -23,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,6 +41,7 @@ public class MessageServiceImpl implements MessageService {
     private final ParticipantRepository participantRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
+    private final SeenMessageRepository seenMessageRepository;
 
 
     @Override
@@ -148,5 +148,49 @@ public class MessageServiceImpl implements MessageService {
         // resend to users in the group
         System.out.println("/typing/" + messageTyping.getConservation());
         messagingTemplate.convertAndSend("/messages/typing/" + messageTyping.getConservation(), messageTyping);
+    }
+
+    @Override
+    public MessageSeenDTO updateSeenStatus(Long conservationId) {
+        var user = userService.getAuthenticatedUser();
+        var conservation = conservationRepository.findById(conservationId).orElse(null);
+
+        if(conservation == null)
+            return null;
+
+        // get unread messages
+        var messages = messageRepository.findUnreadMessages(conservationId, user.getId());
+
+        if(messages.size() == 0)
+            return null;
+
+        // crete SeenMessage objects
+        List<SeenMessage> seenMessages = messages
+                .stream()
+                .map(message -> {
+                    return SeenMessage
+                            .builder()
+                            .message(message)
+                            .user(new User(user.getId()))
+                            .seenAt(new Date())
+                            .build();
+                })
+                .toList();
+
+        seenMessageRepository.saveAll(seenMessages);
+
+        SeenMessage lastSeen = seenMessages.get(seenMessages.size() - 1);
+
+        MessageSeenDTO dto = MessageSeenDTO
+                .builder()
+                .user(lastSeen.getUser().getId())
+                .message(lastSeen.getMessage().getId())
+                .conservation(conservationId)
+                .seenAt(lastSeen.getSeenAt())
+                .build();
+
+        eventPublisher.publishEvent(new MessageSeenEvent(this, dto, conservation));
+
+        return dto;
     }
 }

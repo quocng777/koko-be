@@ -47,6 +47,12 @@ public class MessageController {
                                 .getMessages(messageQueryParams, pageSize, pageNum)));
     }
 
+    @GetMapping("/seen-status")
+    public ResponseEntity<?> updateSeenStatus(@RequestParam("conservation") Long conservationId) {
+        return ResponseEntity.ok(
+                AppResponse.success(messageService.updateSeenStatus(conservationId)));
+    }
+
     @MessageMapping("/typing")
     public void sendTyping(@RequestBody MessageTyping messageTyping, Principal principal) {
         messageService.sendIsTyping(principal, messageTyping);

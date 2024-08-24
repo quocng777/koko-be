@@ -1,10 +1,11 @@
 package com.quocnguyen.koko.event.listener;
 
+import com.quocnguyen.koko.event.MessageSeenEvent;
 import com.quocnguyen.koko.event.MessageSendEvent;
-import jakarta.transaction.Transactional;
+import com.quocnguyen.koko.model.Conservation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.converter.SimpleMessageConverter;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -16,7 +17,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class MessageSendListener {
+public class MessageEventListener {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @TransactionalEventListener(classes = MessageSendEvent.class)
@@ -30,6 +31,19 @@ public class MessageSendListener {
                 .forEach((mem) -> {
                     Long memId = mem.getUser().getId();
                     simpMessagingTemplate.convertAndSendToUser(memId.toString(), "/message", msg);
+                });
+    }
+
+    @EventListener(classes = MessageSeenEvent.class)
+    public void handleMessageSeenEvent(MessageSeenEvent event) {
+        var seenMsg = event.getMessageSeen();
+        Conservation conservation = event.getConservation();
+
+        conservation
+                .getParticipants()
+                .forEach((mem) -> {
+                    Long memId = mem.getUser().getId();
+                    simpMessagingTemplate.convertAndSendToUser(memId.toString(), "/seen", seenMsg);
                 });
     }
 

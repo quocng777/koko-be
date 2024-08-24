@@ -42,6 +42,9 @@ public class Message {
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "message", fetch = FetchType.EAGER)
     private Set<Attachment> attachments;
 
+    @OneToMany(mappedBy = "message", fetch = FetchType.EAGER)
+    private Set<SeenMessage> seenUser;
+
     public enum MessageType {
         TEXT,
         IMAGE,

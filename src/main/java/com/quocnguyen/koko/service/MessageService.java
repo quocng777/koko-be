@@ -1,9 +1,6 @@
 package com.quocnguyen.koko.service;
 
-import com.quocnguyen.koko.dto.AppPaging;
-import com.quocnguyen.koko.dto.MessageDTO;
-import com.quocnguyen.koko.dto.MessageQueryParams;
-import com.quocnguyen.koko.dto.MessageTyping;
+import com.quocnguyen.koko.dto.*;
 
 import java.security.Principal;
 
@@ -21,4 +18,6 @@ public interface MessageService {
                                       Integer pageNum);
 
     void sendIsTyping(Principal principal, MessageTyping messageTyping);
+
+    MessageSeenDTO updateSeenStatus(Long conservationId);
 }
