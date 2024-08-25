@@ -20,4 +20,6 @@ public interface MessageService {
     void sendIsTyping(Principal principal, MessageTyping messageTyping);
 
     MessageSeenDTO updateSeenStatus(Long conservationId);
+
+    int  getNumUnreadMessage(Long conservationId);
 }

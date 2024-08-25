@@ -40,7 +40,7 @@ public class MessageDTO {
     private Message.MessageType type;
 
     private Set<AttachmentDTO> attachments;
-    private Set<MessageSeenDTO> seenUsers;
+    private Set<MessageSeenDTO> seenBy;
 
     public static MessageDTO convert(Message message) {
         MessageDTO messageDTO = MessageDTO
@@ -56,7 +56,7 @@ public class MessageDTO {
                                 .map(atc -> new AttachmentDTO(atc.getId(), atc.getUrl(), atc.getFileName(), atc.getFileType(), atc.getCreatedAt()))
                                 .collect(Collectors.toSet())
                         )
-                .seenUsers(
+                .seenBy(
                         message.getSeenUser() == null
                         ? null : message
                                 .getSeenUser()

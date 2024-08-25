@@ -36,12 +36,25 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     @Query("SELECT m " +
             "FROM Message m " +
-            "WHERE " +
-            "m.conservation.id = ?1 " +
+            "WHERE m.conservation.id = ?1 AND m.sender.id != ?2 " +
+            "AND m NOT IN ( " +
+                "SELECT m2 " +
+                "FROM Message m2 JOIN SeenMessage s " +
+                "ON m2.id = s.message.id " +
+                "WHERE s.user.id = ?2 " +
+            ")"
+    )
+    Collection<Message> findUnreadMessages(Long conservation, Long userId);
+
+    @Query("SELECT COUNT (m)" +
+            "FROM Message m " +
+            "WHERE m.conservation.id = ?1 AND m.sender.id != ?2 " +
             "AND m NOT IN ( " +
             "SELECT m2 " +
             "FROM Message m2 JOIN SeenMessage s " +
-            "ON m2.id = s.message.id AND s.user.id = ?2)"
+            "ON m2.id = s.message.id " +
+            "WHERE s.user.id = ?2 " +
+            ")"
     )
-    Collection<Message> findUnreadMessages(Long conservation, Long userId);
+    int countUnreadMessages(Long conservationId, Long userId);
 }

@@ -1,10 +1,7 @@
 package com.quocnguyen.koko.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
@@ -17,6 +14,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @Entity
+@Table(name = "seen_message")
 public class SeenMessage {
 
     @Id
@@ -25,10 +23,12 @@ public class SeenMessage {
 
     @ManyToOne()
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @EqualsAndHashCode.Exclude
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "message_id", referencedColumnName = "id")
+    @EqualsAndHashCode.Exclude
     private Message message;
 
     private Date seenAt;

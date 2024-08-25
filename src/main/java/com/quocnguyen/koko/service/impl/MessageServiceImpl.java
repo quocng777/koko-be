@@ -193,4 +193,11 @@ public class MessageServiceImpl implements MessageService {
 
         return dto;
     }
+
+    @Override
+    public int getNumUnreadMessage(Long conservationId) {
+        var user = userService.getAuthenticatedUser();
+
+        return messageRepository.countUnreadMessages(conservationId, user.getId());
+    }
 }

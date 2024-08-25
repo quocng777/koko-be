@@ -39,6 +39,7 @@ public class MessageEventListener {
         var seenMsg = event.getMessageSeen();
         Conservation conservation = event.getConservation();
 
+        log.info("SEN SEEN EVENT TO CLIENT");
         conservation
                 .getParticipants()
                 .forEach((mem) -> {

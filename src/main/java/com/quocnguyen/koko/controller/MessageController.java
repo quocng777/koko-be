@@ -53,6 +53,13 @@ public class MessageController {
                 AppResponse.success(messageService.updateSeenStatus(conservationId)));
     }
 
+    @GetMapping("/unseen")
+    public ResponseEntity<?> getNumberUnseenMsg(@RequestParam("conservation") Long conservationId) {
+        return ResponseEntity.ok(
+                AppResponse.success(messageService.getNumUnreadMessage(conservationId))
+        );
+    }
+
     @MessageMapping("/typing")
     public void sendTyping(@RequestBody MessageTyping messageTyping, Principal principal) {
         messageService.sendIsTyping(principal, messageTyping);
