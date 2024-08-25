@@ -1,7 +1,10 @@
 package com.quocnguyen.koko.service.impl;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.quocnguyen.koko.dto.AttachmentPreSingedUrlDTO;
 import com.quocnguyen.koko.dto.UserDTO;
@@ -9,9 +12,11 @@ import com.quocnguyen.koko.service.FileService;
 import com.quocnguyen.koko.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
@@ -48,9 +53,24 @@ public class FileServiceImpl implements FileService {
 
         return AttachmentPreSingedUrlDTO
                 .builder()
+                .keyObject(uploadFileName)
                 .fileUploadedUrl(url.getProtocol() + "://" + url.getHost() + "/" + uploadFileName)
                 .url(url.toString())
                 .build();
 
+    }
+
+    @Override
+    @Async
+    public void deleteFiles(String[] keys) {
+        try {
+            var dor =  new DeleteObjectsRequest(bucketName)
+                    .withKeys(keys);
+
+            amazonS3.deleteObjects(dor);
+
+        } catch (AmazonClientException e) {
+            System.err.println(e.getMessage());
+        }
     }
 }

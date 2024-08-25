@@ -1,5 +1,6 @@
 package com.quocnguyen.koko.event.listener;
 
+import com.quocnguyen.koko.event.MessageDeleteEvent;
 import com.quocnguyen.koko.event.MessageSeenEvent;
 import com.quocnguyen.koko.event.MessageSendEvent;
 import com.quocnguyen.koko.model.Conservation;
@@ -44,7 +45,20 @@ public class MessageEventListener {
                 .getParticipants()
                 .forEach((mem) -> {
                     Long memId = mem.getUser().getId();
-                    simpMessagingTemplate.convertAndSendToUser(memId.toString(), "/seen", seenMsg);
+                    simpMessagingTemplate.convertAndSendToUser(memId.toString(), "/message/seen", seenMsg);
+                });
+    }
+
+    @EventListener(classes = MessageDeleteEvent.class)
+    public void handleMessageDeleteEvent(MessageDeleteEvent event) {
+        var msg = event.getMessage();
+        Conservation conservation = event.getConservation();
+
+        conservation
+                .getParticipants()
+                .forEach((mem) -> {
+                    Long memId = mem.getUser().getId();
+                    simpMessagingTemplate.convertAndSendToUser(memId.toString(), "/message/delete", msg);
                 });
     }
 

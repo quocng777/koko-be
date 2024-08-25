@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 @Builder
 public class AttachmentPreSingedUrlDTO {
+    private String keyObject;
     private String fileUploadedUrl;
     private String url;
 }

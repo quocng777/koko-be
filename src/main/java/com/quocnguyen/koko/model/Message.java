@@ -45,11 +45,14 @@ public class Message {
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "message", fetch = FetchType.EAGER)
     private Set<SeenMessage> seenUser;
 
+    private Date deletedAt;
+
     public enum MessageType {
         TEXT,
         IMAGE,
         FILE,
         VIDEO,
-        VOICE
+        VOICE,
+        DELETED,
     }
 }

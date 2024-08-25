@@ -24,6 +24,7 @@ public class Attachment {
     @EqualsAndHashCode.Exclude
     private Message message;
     private String fileName;
+    private String keyObject;
     private String url;
     private String fileType;
     private Date createdAt;

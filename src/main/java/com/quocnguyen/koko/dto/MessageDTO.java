@@ -53,7 +53,14 @@ public class MessageDTO {
                                 ? null
                                 : message.getAttachments()
                                 .stream()
-                                .map(atc -> new AttachmentDTO(atc.getId(), atc.getUrl(), atc.getFileName(), atc.getFileType(), atc.getCreatedAt()))
+                                .map(atc -> AttachmentDTO
+                                        .builder()
+                                        .id(atc.getId())
+                                        .url(atc.getUrl())
+                                        .fileName(atc.getFileName())
+                                        .fileType(atc.getFileType())
+                                        .createdAt(atc.getCreatedAt())
+                                        .build())
                                 .collect(Collectors.toSet())
                         )
                 .seenBy(

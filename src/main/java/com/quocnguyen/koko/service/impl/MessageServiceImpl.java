@@ -1,11 +1,13 @@
 package com.quocnguyen.koko.service.impl;
 
 import com.quocnguyen.koko.dto.*;
+import com.quocnguyen.koko.event.MessageDeleteEvent;
 import com.quocnguyen.koko.event.MessageSeenEvent;
 import com.quocnguyen.koko.event.MessageSendEvent;
 import com.quocnguyen.koko.exception.ResourceNotFoundException;
 import com.quocnguyen.koko.model.*;
 import com.quocnguyen.koko.repository.*;
+import com.quocnguyen.koko.service.FileService;
 import com.quocnguyen.koko.service.MessageService;
 import com.quocnguyen.koko.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class MessageServiceImpl implements MessageService {
     private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
     private final SeenMessageRepository seenMessageRepository;
+    private final FileService fileService;
 
 
     @Override
@@ -199,5 +202,47 @@ public class MessageServiceImpl implements MessageService {
         var user = userService.getAuthenticatedUser();
 
         return messageRepository.countUnreadMessages(conservationId, user.getId());
+    }
+
+    @Override
+    @Transactional
+    public MessageDTO deleteMessage(Long messageId) {
+        var user = userService.getAuthenticatedUser();
+
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new ResourceNotFoundException("Message not found"));
+
+        if(!message.getSender().getId().equals(user.getId()))
+            throw new ResourceNotFoundException("Message not found");
+
+        if(message.getDeletedAt() != null)
+            return null;
+
+        if(message.getType() == Message.MessageType.TEXT) {
+            message.setMessage(null);
+        }
+
+        // delete all attachment from s3
+        if( message.getAttachments().size() > 0 ) {
+            String[] objectKeys = message
+                    .getAttachments()
+                    .stream()
+                    .map(Attachment::getKeyObject)
+                    .toArray(String[]::new);
+            attachmentRepository.deleteAll(message.getAttachments());
+            message.setAttachments(null);
+            fileService.deleteFiles(objectKeys);
+        }
+
+        message.setDeletedAt(new Date());
+        message.setType(Message.MessageType.DELETED);
+
+        message = messageRepository.save(message);
+
+        var dto = MessageDTO.convert(message);
+
+        eventPublisher.publishEvent(new MessageDeleteEvent(this, dto, message.getConservation()));
+
+        return dto;
     }
 }

@@ -8,12 +8,14 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * @author Quoc Nguyen on {2024-08-18}
  */
 
 @Configuration
+@EnableAsync
 public class AwsS3Config {
 
     @Value("${aws.secret-key}")

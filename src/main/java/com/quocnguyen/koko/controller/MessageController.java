@@ -64,4 +64,12 @@ public class MessageController {
     public void sendTyping(@RequestBody MessageTyping messageTyping, Principal principal) {
         messageService.sendIsTyping(principal, messageTyping);
     }
+
+    @DeleteMapping("/{messageId}")
+    public ResponseEntity<?> deleteMessage(@PathVariable(name = "messageId") Long messageId) {
+        return ResponseEntity
+                .ok(
+                        AppResponse.success(messageService.deleteMessage(messageId))
+                );
+    }
 }

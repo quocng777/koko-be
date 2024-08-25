@@ -22,4 +22,8 @@ public interface MessageService {
     MessageSeenDTO updateSeenStatus(Long conservationId);
 
     int  getNumUnreadMessage(Long conservationId);
+
+    MessageDTO  deleteMessage(Long messageId);
+
+
 }
