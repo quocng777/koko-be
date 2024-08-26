@@ -72,5 +72,12 @@ public class UserController {
         );
     }
 
+    @GetMapping("/friend-status")
+    public ResponseEntity<?> checkFriend(@RequestParam(name = "friendId") Long id) {
+        return ResponseEntity.ok(
+                AppResponse.success(userService.checkFriendStatus(id))
+        );
+    }
+
 
 }

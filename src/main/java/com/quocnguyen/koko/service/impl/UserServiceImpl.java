@@ -3,10 +3,8 @@ package com.quocnguyen.koko.service.impl;
 import com.quocnguyen.koko.dto.AppPaging;
 import com.quocnguyen.koko.dto.UserContactDTO;
 import com.quocnguyen.koko.dto.UserDTO;
-import com.quocnguyen.koko.model.AppUserDetails;
-import com.quocnguyen.koko.model.Relationship;
-import com.quocnguyen.koko.model.User;
-import com.quocnguyen.koko.model.VerificationCode;
+import com.quocnguyen.koko.exception.ResourceNotFoundException;
+import com.quocnguyen.koko.model.*;
 import com.quocnguyen.koko.repository.RelationshipRepository;
 import com.quocnguyen.koko.repository.UserRepository;
 import com.quocnguyen.koko.repository.VerificationCodeRepository;
@@ -127,7 +125,7 @@ public class UserServiceImpl implements UserService {
                             .username(friend.getUsername())
                             .avatar(friend.getAvatar())
                             .name(friend.getName())
-                            .isFriend(true)
+                            .friendStatus(UserContactDTO.FriendStatus.FRIEND)
                             .build();
                 })
                 .toList();
@@ -136,5 +134,33 @@ public class UserServiceImpl implements UserService {
         paging.setList(contacts);
 
         return paging;
+    }
+
+    @Override
+    public UserContactDTO checkFriendStatus(Long friendId) {
+        var user = getAuthenticatedUser();
+
+        User friend = userRepo.findById(friendId).orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
+
+        var rel1 = relationshipRepo.findById(new RelationshipId(user.getId(), friendId)).orElse(null);
+        var rel2 = relationshipRepo.findById(new RelationshipId(friendId, user.getId())).orElse(null);
+
+        var res = UserContactDTO
+                .builder()
+                .id(friend.getId())
+                .username(friend.getUsername())
+                .name(friend.getName())
+                .build();
+
+        if(rel1 != null && rel2 != null)
+            res.setFriendStatus(UserContactDTO.FriendStatus.FRIEND);
+        else if(rel1 != null)
+            res.setFriendStatus(UserContactDTO.FriendStatus.SENT_REQUEST);
+        else if(rel2 != null)
+            res.setFriendStatus(UserContactDTO.FriendStatus.RECEIVED_REQUEST);
+        else
+            res.setFriendStatus(UserContactDTO.FriendStatus.STRANGER);
+
+        return res;
     }
 }

@@ -19,4 +19,6 @@ public interface UserService {
     AppPaging<UserContactDTO> getFriends(String keyword,
                                          int pageNum,
                                          int pageSize);
+
+    UserContactDTO checkFriendStatus(Long userId);
 }

@@ -14,5 +14,13 @@ public class UserContactDTO {
     private String username;
     private String name;
     private String avatar;
-    private boolean isFriend;
+    private FriendStatus friendStatus;
+
+    public enum FriendStatus {
+        FRIEND,
+        SENT_REQUEST,
+        RECEIVED_REQUEST,
+        STRANGER,
+    }
+
 }
