@@ -14,4 +14,5 @@ public class UserContactDTO {
     private String username;
     private String name;
     private String avatar;
+    private boolean isFriend;
 }

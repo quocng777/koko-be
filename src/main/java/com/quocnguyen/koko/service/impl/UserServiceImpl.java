@@ -1,21 +1,29 @@
 package com.quocnguyen.koko.service.impl;
 
+import com.quocnguyen.koko.dto.AppPaging;
+import com.quocnguyen.koko.dto.UserContactDTO;
 import com.quocnguyen.koko.dto.UserDTO;
 import com.quocnguyen.koko.model.AppUserDetails;
+import com.quocnguyen.koko.model.Relationship;
 import com.quocnguyen.koko.model.User;
 import com.quocnguyen.koko.model.VerificationCode;
+import com.quocnguyen.koko.repository.RelationshipRepository;
 import com.quocnguyen.koko.repository.UserRepository;
 import com.quocnguyen.koko.repository.VerificationCodeRepository;
 import com.quocnguyen.koko.service.UserService;
 import com.quocnguyen.koko.service.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Quoc Nguyen on {7/31/2024}
@@ -26,6 +34,7 @@ import java.util.Date;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepo;
     private final VerificationCodeRepository vcRepo;
+    private final RelationshipRepository relationshipRepo;
 
     @Override
     public UserDetails loadByUsername(String username) {
@@ -98,5 +107,34 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(user, dto);
 
         return dto;
+    }
+
+    @Override
+    public AppPaging<UserContactDTO> getFriends(String keyword, int pageNum, int pageSize) {
+        var user = getAuthenticatedUser();
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+
+        Page<Relationship> relationships = relationshipRepo.getFriends(user.getId(), keyword, pageable);
+
+        List<UserContactDTO> contacts = relationships
+                .getContent()
+                .stream()
+                .map((rel) -> {
+                    var friend = rel.getRelatedUser();
+                    return UserContactDTO
+                            .builder()
+                            .id(friend.getId())
+                            .username(friend.getUsername())
+                            .avatar(friend.getAvatar())
+                            .name(friend.getName())
+                            .isFriend(true)
+                            .build();
+                })
+                .toList();
+
+        AppPaging<UserContactDTO> paging = AppPaging.convertExcludeContent(relationships);
+        paging.setList(contacts);
+
+        return paging;
     }
 }

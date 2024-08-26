@@ -63,5 +63,14 @@ public class UserController {
         );
     }
 
+    @GetMapping("/friends")
+    public ResponseEntity<?> getFriends(@RequestParam(name = "keyword", defaultValue = "") String keyword,
+                                        @RequestParam(value = "pageSize", defaultValue = "15") int pageSize,
+                                        @RequestParam(value = "pageNum", defaultValue = "0") int pageNum) {
+        return ResponseEntity.ok(
+                AppResponse.success(userService.getFriends(keyword, pageNum, pageSize))
+        );
+    }
+
 
 }

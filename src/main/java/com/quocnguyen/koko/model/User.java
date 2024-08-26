@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,6 +27,7 @@ public class User {
     private Date birthdate;
     private Date createdAt;
     private boolean verified;
+    private String avatar;
 
     public User(Long id) {
         this.id = id;

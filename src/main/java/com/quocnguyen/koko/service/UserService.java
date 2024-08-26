@@ -1,5 +1,7 @@
 package com.quocnguyen.koko.service;
 
+import com.quocnguyen.koko.dto.AppPaging;
+import com.quocnguyen.koko.dto.UserContactDTO;
 import com.quocnguyen.koko.dto.UserDTO;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,4 +15,8 @@ public interface UserService {
     UserDTO verifyAccount(String token);
 
     UserDTO getAuthenticatedUser();
+
+    AppPaging<UserContactDTO> getFriends(String keyword,
+                                         int pageNum,
+                                         int pageSize);
 }
