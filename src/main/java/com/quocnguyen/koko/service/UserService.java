@@ -21,4 +21,6 @@ public interface UserService {
                                          int pageSize);
 
     UserContactDTO checkFriendStatus(Long userId);
+
+    UserContactDTO requestFriend(Long friendId);
 }

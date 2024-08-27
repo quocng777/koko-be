@@ -3,6 +3,7 @@ package com.quocnguyen.koko.service.impl;
 import com.quocnguyen.koko.dto.AppPaging;
 import com.quocnguyen.koko.dto.UserContactDTO;
 import com.quocnguyen.koko.dto.UserDTO;
+import com.quocnguyen.koko.event.FriendRequestEvent;
 import com.quocnguyen.koko.exception.ResourceNotFoundException;
 import com.quocnguyen.koko.model.*;
 import com.quocnguyen.koko.repository.RelationshipRepository;
@@ -12,6 +13,7 @@ import com.quocnguyen.koko.service.UserService;
 import com.quocnguyen.koko.service.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepo;
     private final VerificationCodeRepository vcRepo;
     private final RelationshipRepository relationshipRepo;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public UserDetails loadByUsername(String username) {
@@ -160,6 +163,42 @@ public class UserServiceImpl implements UserService {
             res.setFriendStatus(UserContactDTO.FriendStatus.RECEIVED_REQUEST);
         else
             res.setFriendStatus(UserContactDTO.FriendStatus.STRANGER);
+
+        return res;
+    }
+
+    @Override
+    public UserContactDTO requestFriend(Long friendId) {
+        var user = getAuthenticatedUser();
+        var friend = userRepo.findById(friendId).orElse(null);
+
+        if(friend == null)
+            return null;
+
+        var rel1 = relationshipRepo.findById(new RelationshipId(user.getId(), friendId)).orElse(null);
+        var rel2 = relationshipRepo.findById(new RelationshipId(friendId, user.getId())).orElse(null);
+        if(rel1 != null || rel2 != null)
+            return null;
+
+        Relationship relationship = Relationship
+                .builder()
+                .user(new User(user.getId()))
+                .relatedUser(friend)
+                .id(new RelationshipId(user.getId(), friendId))
+                .type(Relationship.RelationshipType.FRIEND)
+                .createdAt(new Date())
+                .build();
+
+        relationship = relationshipRepo.save(relationship);
+        eventPublisher.publishEvent(new FriendRequestEvent(this, relationship));
+
+        var res = UserContactDTO
+                .builder()
+                .id(friend.getId())
+                .username(friend.getUsername())
+                .name(friend.getName())
+                .friendStatus(UserContactDTO.FriendStatus.SENT_REQUEST)
+                .build();
 
         return res;
     }

@@ -8,6 +8,7 @@ import com.quocnguyen.koko.service.UserService;
 import com.quocnguyen.koko.service.VerificationCodeService;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -76,6 +77,18 @@ public class UserController {
     public ResponseEntity<?> checkFriend(@RequestParam(name = "friendId") Long id) {
         return ResponseEntity.ok(
                 AppResponse.success(userService.checkFriendStatus(id))
+        );
+    }
+
+    @GetMapping("/friends/request")
+    public ResponseEntity<?> requestFriend(@RequestParam(name = "friendId") Long id) throws BadRequestException {
+        var userContact = userService.requestFriend(id);
+        if(userContact == null) {
+            throw new BadRequestException("Bad request");
+        }
+
+        return ResponseEntity.ok(
+                AppResponse.success(userContact)
         );
     }
 

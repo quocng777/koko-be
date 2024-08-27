@@ -18,9 +18,6 @@ import java.io.Serializable;
 @Embeddable
 public class RelationshipId implements Serializable {
 
-    @Column(name = "user_id", nullable = false)
     private Long user;
-
-    @Column(name = "related_user_id", nullable = false)
     private Long relatedUser;
 }
