@@ -29,4 +29,17 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Rela
                 ") " +
             "ORDER BY r.createdAt DESC")
     Page<Relationship> getFriends(Long userId, String keyword, Pageable pageable);
+
+
+    @Query("SELECT r FROM Relationship  r " +
+            "WHERE r.relatedUser.id = ?1 " +
+            "AND r.type = 'FRIEND' " +
+            "AND NOT EXISTS ( " +
+            "   SELECT r2 FROM Relationship r2 " +
+            "   WHERE r2.user.id = ?1 " +
+            "   AND r2.relatedUser.id = r.user.id " +
+            "   AND r.type = 'FRIEND' " +
+            ") " +
+            "ORDER BY r.createdAt DESC ")
+    Page<Relationship> getFriendRequests(Long userId, Pageable pageable);
 }

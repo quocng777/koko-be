@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -23,6 +24,16 @@ public class NotificationController {
         return ResponseEntity.ok(
                 AppResponse.success(notificationService.numberUndismissedNotification())
         );
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getNotifications(@RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+                                              @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
+                                              @RequestParam(name = "beforeId", required = false) Long beforeId) {
+
+        return ResponseEntity.ok(
+                AppResponse.success(notificationService.getNotifications(pageNum, pageSize, beforeId)
+        ));
     }
 
 

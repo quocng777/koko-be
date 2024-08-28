@@ -1,5 +1,6 @@
 package com.quocnguyen.koko.service;
 
+import com.quocnguyen.koko.dto.AppPaging;
 import com.quocnguyen.koko.dto.NotificationDTO;
 
 /**
@@ -9,4 +10,6 @@ import com.quocnguyen.koko.dto.NotificationDTO;
 public interface NotificationService {
     Long save(NotificationDTO notification);
     int numberUndismissedNotification();
+
+    AppPaging<NotificationDTO> getNotifications(int pageNum, int pageSize, Long beforeId);
 }

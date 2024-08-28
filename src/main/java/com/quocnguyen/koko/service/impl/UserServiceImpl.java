@@ -3,6 +3,7 @@ package com.quocnguyen.koko.service.impl;
 import com.quocnguyen.koko.dto.AppPaging;
 import com.quocnguyen.koko.dto.UserContactDTO;
 import com.quocnguyen.koko.dto.UserDTO;
+import com.quocnguyen.koko.dto.UserFriendDTO;
 import com.quocnguyen.koko.event.FriendRequestEvent;
 import com.quocnguyen.koko.exception.ResourceNotFoundException;
 import com.quocnguyen.koko.model.*;
@@ -201,5 +202,36 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         return res;
+    }
+
+    @Override
+    public AppPaging<UserFriendDTO> getFriendRequests(int pageNum, int pageSize) {
+        var user = getAuthenticatedUser();
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+
+        var page = relationshipRepo.getFriendRequests(user.getId(), pageable);
+
+        AppPaging<UserFriendDTO> paging = AppPaging.convertExcludeContent(page);
+
+        paging.setList(
+                page.getContent()
+                        .stream()
+                        .map(rel -> {
+                            return UserFriendDTO.builder()
+                                    .relatedUser(
+                                            UserContactDTO.builder()
+                                                    .id(rel.getUser().getId())
+                                                    .username(rel.getUser().getUsername())
+                                                    .name(rel.getUser().getName())
+                                                    .avatar(rel.getUser().getName())
+                                            .build())
+                                    .friendStatus(UserContactDTO.FriendStatus.RECEIVED_REQUEST)
+                                    .createdAt(rel.getCreatedAt())
+                                    .build();
+                        })
+                        .toList()
+        );
+
+        return paging;
     }
 }

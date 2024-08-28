@@ -92,5 +92,14 @@ public class UserController {
         );
     }
 
+    @GetMapping("/friends/received-requests")
+    public ResponseEntity<?> getReceivedRequests(@RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+                                                 @RequestParam(name = "pageSize", defaultValue = "0") int pageSize) {
+        return
+                ResponseEntity.ok(
+                        AppResponse.success(userService.getFriendRequests(pageNum, pageSize))
+                );
+    }
+
 
 }

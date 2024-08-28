@@ -3,6 +3,7 @@ package com.quocnguyen.koko.service;
 import com.quocnguyen.koko.dto.AppPaging;
 import com.quocnguyen.koko.dto.UserContactDTO;
 import com.quocnguyen.koko.dto.UserDTO;
+import com.quocnguyen.koko.dto.UserFriendDTO;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -23,4 +24,6 @@ public interface UserService {
     UserContactDTO checkFriendStatus(Long userId);
 
     UserContactDTO requestFriend(Long friendId);
+
+    AppPaging<UserFriendDTO> getFriendRequests(int pageNum, int pageSize);
 }

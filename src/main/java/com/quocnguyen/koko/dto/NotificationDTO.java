@@ -27,8 +27,24 @@ public class NotificationDTO {
     private Date dismissedAt;
     private Date createdAt;
 
-    public enum NotificationType {
-        FRIEND_REQUEST,
-        FRIEND_ACCEPT,
+    public static NotificationDTO convert(Notification notification) {
+        return NotificationDTO
+                .builder()
+                .id(notification.getId())
+                .publishedUser(UserContactDTO
+                        .builder()
+                        .id(notification.getPublishedUser().getId())
+                        .name(notification.getPublishedUser().getUsername())
+                        .name(notification.getPublishedUser().getName())
+                        .avatar(notification.getPublishedUser().getAvatar())
+                        .build())
+                .recipient(notification.getRecipient().getId())
+                .objectUrl(notification.getObjectUrl())
+                .objectId(notification.getObjectId())
+                .type(notification.getType())
+                .seenAt(notification.getSeenAt())
+                .dismissedAt(notification.getDismissedAt())
+                .createdAt(notification.getCreatedAt())
+                .build();
     }
 }
