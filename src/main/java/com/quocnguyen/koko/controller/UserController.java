@@ -101,5 +101,12 @@ public class UserController {
                 );
     }
 
+    @GetMapping("/friends/accept")
+    public ResponseEntity<?> acceptFriendRequest(@RequestParam(name = "friendId") Long friendId) {
+        return ResponseEntity.ok(
+                AppResponse.success(userService.acceptFriendRequest(friendId))
+        );
+    }
+
 
 }

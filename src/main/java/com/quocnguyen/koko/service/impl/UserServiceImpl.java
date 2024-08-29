@@ -4,6 +4,7 @@ import com.quocnguyen.koko.dto.AppPaging;
 import com.quocnguyen.koko.dto.UserContactDTO;
 import com.quocnguyen.koko.dto.UserDTO;
 import com.quocnguyen.koko.dto.UserFriendDTO;
+import com.quocnguyen.koko.event.FriendAcceptEvent;
 import com.quocnguyen.koko.event.FriendRequestEvent;
 import com.quocnguyen.koko.exception.ResourceNotFoundException;
 import com.quocnguyen.koko.model.*;
@@ -13,6 +14,7 @@ import com.quocnguyen.koko.repository.VerificationCodeRepository;
 import com.quocnguyen.koko.service.UserService;
 import com.quocnguyen.koko.service.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -233,5 +236,41 @@ public class UserServiceImpl implements UserService {
         );
 
         return paging;
+    }
+
+    @Override
+    @Transactional
+    public UserFriendDTO acceptFriendRequest(Long friendId) {
+        var user = getAuthenticatedUser();
+
+        if(relationshipRepo.findByIdAndType(user.getId(), friendId, Relationship.RelationshipType.FRIEND).isPresent()) {
+            return null;
+        }
+
+        var friendRequest = relationshipRepo.findByIdAndType(friendId, user.getId(), Relationship.RelationshipType.FRIEND)
+                .orElseThrow(() -> new ResourceNotFoundException("No friend request is found"));
+
+        Relationship relationship = Relationship
+                .builder()
+                .id(new RelationshipId(user.getId(), friendId))
+                .user(new User(user.getId()))
+                .relatedUser(new User(friendId))
+                .type(Relationship.RelationshipType.FRIEND)
+                .createdAt(new Date())
+                .build();
+
+
+        friendRequest.setCreatedAt(new Date());
+
+        relationship = relationshipRepo.save(relationship);
+        relationshipRepo.save(friendRequest);
+
+        eventPublisher.publishEvent(new FriendAcceptEvent(this, relationship));
+
+        return UserFriendDTO
+                .builder()
+                .relatedUser(UserContactDTO.convert(relationship.getRelatedUser()))
+                .friendStatus(UserContactDTO.FriendStatus.FRIEND)
+                .build();
     }
 }

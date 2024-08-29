@@ -1,5 +1,6 @@
 package com.quocnguyen.koko.service.impl;
 
+import com.quocnguyen.koko.dto.AppPaging;
 import com.quocnguyen.koko.dto.ConservationDTO;
 import com.quocnguyen.koko.dto.ConservationRequestParams;
 import com.quocnguyen.koko.dto.UserDTO;
@@ -14,6 +15,8 @@ import com.quocnguyen.koko.service.ConservationService;
 import com.quocnguyen.koko.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -111,5 +114,24 @@ public class ConservationServiceImpl implements ConservationService {
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Conservation with id %d is not found", id)));
 
         return ConservationDTO.convert(conservation);
+    }
+
+    @Override
+    public AppPaging<ConservationDTO> getConservation(int pageNum, int pageSize, String keyword) {
+        var user = userService.getAuthenticatedUser();
+
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+
+        var page = conservationRepository.findConservations(user.getId(), keyword, pageable);
+
+        AppPaging<ConservationDTO> paging = AppPaging.convertExcludeContent(page);
+        paging.setList(
+                page.getContent()
+                        .stream()
+                        .map(ConservationDTO::convert)
+                        .toList()
+        );
+
+        return paging;
     }
 }

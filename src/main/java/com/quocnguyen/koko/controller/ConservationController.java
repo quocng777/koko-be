@@ -33,6 +33,15 @@ public class ConservationController {
                 AppResponse.success(conservationService.getConservations()));
     }
 
+    @GetMapping("/paging")
+    public ResponseEntity<?> getConservation(@RequestParam(name = "keyword", defaultValue = "") String keyword,
+                                             @RequestParam(name = "pageNum", defaultValue = "0") int pageNum,
+                                             @RequestParam(name = "pageSize", defaultValue = "0") int pageSize) {
+        return ResponseEntity.ok(
+                AppResponse.success(conservationService.getConservation(pageNum, pageSize, keyword))
+        );
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getConservationById(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(

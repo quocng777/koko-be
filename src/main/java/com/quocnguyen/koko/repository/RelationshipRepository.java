@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * @author Quoc Nguyen on {2024-08-26}
@@ -42,4 +43,10 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Rela
             ") " +
             "ORDER BY r.createdAt DESC ")
     Page<Relationship> getFriendRequests(Long userId, Pageable pageable);
+
+    @Query("SELECT r FROM Relationship r " +
+            "WHERE r.user.id = ?1 " +
+            "AND  r.relatedUser.id = ?2 " +
+            "AND r.type = ?3")
+    Optional<Relationship> findByIdAndType(Long userId, Long relatedId, Relationship.RelationshipType type);
 }

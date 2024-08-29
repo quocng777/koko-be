@@ -26,4 +26,6 @@ public interface UserService {
     UserContactDTO requestFriend(Long friendId);
 
     AppPaging<UserFriendDTO> getFriendRequests(int pageNum, int pageSize);
+
+    UserFriendDTO acceptFriendRequest(Long friendId);
 }

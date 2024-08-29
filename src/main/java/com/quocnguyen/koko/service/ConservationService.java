@@ -1,5 +1,6 @@
 package com.quocnguyen.koko.service;
 
+import com.quocnguyen.koko.dto.AppPaging;
 import com.quocnguyen.koko.dto.ConservationDTO;
 import com.quocnguyen.koko.dto.ConservationRequestParams;
 
@@ -14,4 +15,6 @@ public interface ConservationService {
     Collection<ConservationDTO> getConservations();
 
     ConservationDTO get(Long id);
+
+    AppPaging<ConservationDTO> getConservation(int pageNum, int pageSize, String keyword);
 }
