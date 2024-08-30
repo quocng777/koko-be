@@ -14,6 +14,6 @@ import java.util.Set;
 public class ConservationRequestParams {
     private String name;
     @NotBlank
-    private Conservation.ConservationType conservationType;
+    private Conservation.ConservationType type;
     private Set<Long> participants;
 }

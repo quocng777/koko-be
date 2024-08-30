@@ -41,6 +41,7 @@ public class MessageDTO {
 
     private Set<AttachmentDTO> attachments;
     private Set<MessageSeenDTO> seenBy;
+    private MessageBroadcastDTO broadcast;
 
     public static MessageDTO convert(Message message) {
         MessageDTO messageDTO = MessageDTO
@@ -79,6 +80,7 @@ public class MessageDTO {
                 )
                 .sender(message.getSender().getId())
                 .createdAt(message.getCreatedAt())
+                .broadcast(MessageBroadcastDTO.convert(message.getBroadCastInfo()))
                 .build();
 
         return messageDTO;

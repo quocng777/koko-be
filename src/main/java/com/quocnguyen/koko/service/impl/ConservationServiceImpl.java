@@ -4,6 +4,7 @@ import com.quocnguyen.koko.dto.AppPaging;
 import com.quocnguyen.koko.dto.ConservationDTO;
 import com.quocnguyen.koko.dto.ConservationRequestParams;
 import com.quocnguyen.koko.dto.UserDTO;
+import com.quocnguyen.koko.event.GroupCreateEvent;
 import com.quocnguyen.koko.exception.ResourceNotFoundException;
 import com.quocnguyen.koko.model.Conservation;
 import com.quocnguyen.koko.model.Participant;
@@ -15,6 +16,7 @@ import com.quocnguyen.koko.service.ConservationService;
 import com.quocnguyen.koko.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class ConservationServiceImpl implements ConservationService {
     private final UserService userService;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -58,7 +61,7 @@ public class ConservationServiceImpl implements ConservationService {
                 .name(params.getName())
                 .creator(new User(user.getId()))
                 .createdAt(new Date())
-                .type(params.getConservationType())
+                .type(params.getType())
                 .build();
 
         try {
@@ -75,7 +78,7 @@ public class ConservationServiceImpl implements ConservationService {
                                 .user(elm)
                                 .conservation(conservation)
                                 .build();
-                        if(params.getConservationType() == Conservation.ConservationType.GROUP
+                        if(params.getType() == Conservation.ConservationType.GROUP
                                 && elm.getId().equals(user.getId())) {
                             participant.setRole(Participant.Role.ADMIN);
                         }
@@ -86,7 +89,11 @@ public class ConservationServiceImpl implements ConservationService {
 
             conservation.setParticipants(participants);
 
-            return ConservationDTO.convert(savedConservation);
+            ConservationDTO res = ConservationDTO.convert(savedConservation);
+            if(res.getType() == Conservation.ConservationType.GROUP) {
+                eventPublisher.publishEvent(new GroupCreateEvent(this, res));
+            }
+            return res;
 
         } catch (Exception exc) {
             log.error(exc.getMessage());

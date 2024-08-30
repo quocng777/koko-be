@@ -21,7 +21,11 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Rela
     @Query("SELECT r FROM Relationship r " +
             "WHERE r.user.id = ?1 " +
             "AND r.type = 'FRIEND' " +
-            "AND (?2 IS NULL OR (r.relatedUser.name LIKE %?2% OR r.relatedUser.name LIKE %?2%)) " +
+            "AND (?2 IS NULL OR (" +
+            "       LOWER(r.relatedUser.username) LIKE LOWER(CONCAT('%', ?2, '%'))  " +
+            "       OR LOWER(r.relatedUser.name) LIKE LOWER(CONCAT('%', ?2, '%'))" +
+            "       )" +
+            "   ) " +
             "AND EXISTS (" +
                 "SELECT r2 FROM Relationship r2 " +
                 "WHERE r2.user.id = r.relatedUser.id " +

@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -66,27 +63,46 @@ public class MessageServiceImpl implements MessageService {
 
         if(message.getType() == Message.MessageType.TEXT) {
             message.setMessage(receivedMsg.getMessage());
+        } else if (message.getType() == Message.MessageType.BROADCAST) {
+            BroadCastInfo broadCastInfo = new BroadCastInfo();
+            broadCastInfo.setBroadCastType(receivedMsg.getBroadcast().getBroadcastType());
+
+            if(receivedMsg.getBroadcast().getTargetUsers() != null) {
+                broadCastInfo.setTargetUsers(
+                        receivedMsg.getBroadcast().getTargetUsers()
+                                .stream()
+                                .map(mem -> new User(mem.getId()))
+                                .collect(Collectors.toSet())
+                );
+            } else {
+                broadCastInfo.setTargetUsers(new HashSet<>());
+            }
+
+            message.setBroadCastInfo(broadCastInfo);
         }
+
         Message savedMessage = messageRepository.save(message);
 
-        Set<Attachment> attachments = receivedMsg
-                .getAttachments()
-                .stream()
-                .map((atc) -> {
-                    Attachment attachment = Attachment
-                            .builder()
-                            .fileName(atc.getFileName())
-                            .url(atc.getUrl())
-                            .message(savedMessage)
-                            .fileType(atc.getFileType())
-                            .createdAt(new Date())
-                            .build();
+        if(receivedMsg.getAttachments() != null) {
+            Set<Attachment> attachments = receivedMsg
+                    .getAttachments()
+                    .stream()
+                    .map((atc) -> {
+                        Attachment attachment = Attachment
+                                .builder()
+                                .fileName(atc.getFileName())
+                                .url(atc.getUrl())
+                                .message(savedMessage)
+                                .fileType(atc.getFileType())
+                                .createdAt(new Date())
+                                .build();
 
-                    return attachmentRepository.save(attachment);
-                })
-                .collect(Collectors.toSet());
+                        return attachmentRepository.save(attachment);
+                    })
+                    .collect(Collectors.toSet());
 
-        savedMessage.setAttachments(attachments);
+            savedMessage.setAttachments(attachments);
+        }
         var returnMessage = MessageDTO.convert(message);
 
         System.out.println("PUBLISH EVENT");
